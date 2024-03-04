@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doodle Collect</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; } </style>
+</head>
+<body>
+    <script>
+        const larguraJogo = 700;
+        const alturaJogo = 850;
+        const config = {
+            type: Phaser.AUTO,
+            width: larguraJogo,
+            height: alturaJogo,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: false
+                }
+            },
+            scene: [WelcomeScene, GameScene]
+        };
+    
+        const game = new Phaser.Game(config);
+
+        class WelcomeScene extends Phaser.Scene {
+            constructor() {
+                super({ key: 'WelcomeScene' });
+            }
+
+            preload() {
+                this.load.image('background', 'assets/bg.jpg');
+            }
+
+            create() {
+                this.add.image(larguraJogo / 2, alturaJogo / 2, 'background');
+                let welcomeText = this.add.text(larguraJogo / 2, alturaJogo / 2 - 100, 'Bem-vindo ao Doodle Collect!', { fontSize: '32px', fill: '#FFF' }).setOrigin(0.5);
+                let instructionText = this.add.text(larguraJogo / 2, alturaJogo / 2, 'Use as setas do teclado para mover o personagem', { fontSize: '22px', fill: '#FFF' }).setOrigin(0.5);
+                let startText = this.add.text(larguraJogo / 2, alturaJogo / 2 + 100, 'Pressione ESPAÇO para iniciar', { fontSize: '22px', fill: '#FFF' }).setOrigin(0.5);
+
+                this.input.keyboard.once('keydown-SPACE', () => {
+                    this.scene.start('GameScene');
+                });
+            }
+        }
+
+
+
+
+    </script>
+</body>
+</html>
