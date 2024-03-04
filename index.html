@@ -159,12 +159,12 @@
             posicionarBolo() {
                 // Se o bolo estiver na posição topo, cria um novo bolo na posição baixo
                 if (this.estadoBolo === 'topo') {
-                    this.bolo = this.physics.add.sprite(larguraJogo / 2, 50, 'bolo');
+                    this.bolo = this.physics.add.sprite(larguraJogo / 2, 100, 'bolo');
                     this.estadoBolo = 'baixo';
 
                 // Se o bolo estiver na posição baixo, cria um novo bolo na posição topo
                 } else {
-                    this.bolo = this.physics.add.sprite(larguraJogo / 2, alturaJogo - 50, 'bolo');
+                    this.bolo = this.physics.add.sprite(larguraJogo / 2, alturaJogo - 100, 'bolo');
                     this.estadoBolo = 'topo';
                 }
                 this.bolo.setScale(0.5);
@@ -179,8 +179,8 @@
                 this.placar.setText('SCORE: ' + this.pontuacao); // Atualiza o placar
 
                 // Gera uma nova posição para o bolo
-                var novaPosicaoX = Phaser.Math.Between(50, larguraJogo - 50);
-                var novaPosicaoY = this.estadoBolo == 'topo' ? 50 : alturaJogo - 50;
+                var novaPosicaoX = Phaser.Math.Between(50, larguraJogo - 150);
+                var novaPosicaoY = this.estadoBolo == 'topo' ? 50 : alturaJogo - 150;
                 this.estadoBolo = this.estadoBolo == 'topo' ? 'baixo' : 'topo'; // Alterna a posição do bolo entre topo e baixo
 
                 // Recria o bolo na nova posição
