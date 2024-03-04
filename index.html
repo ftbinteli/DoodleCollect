@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doodle Collect</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; } </style>
+</head>
+<body>
+    <script>
+        const larguraJogo = 700;
+        const alturaJogo = 850;
+        var alien 
+        var inimigoTopo 
+        var inimigoBaixo 
+        var moeda 
+        var pontuacao = 0
+        var placar
+        var estadoMoeda = 'topo'; // Estado inicial da moeda
+        var cursors 
+        const config = {
+            type: Phaser.AUTO,
+            width: larguraJogo,
+            height: alturaJogo,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 }, // Sem gravidade para controlar manualmente a moeda
+                    debug: false
+                }
+            },
+            scene: { preload, create, update }
+        };
+
+        const game = new Phaser.Game(config);
+
+        function preload() {
+            this.load.image('background', 'assets/bg.png');
+            this.load.image('player', 'assets/Doodler.png');
+            this.load.image('inimigo', 'assets/inimigo.png');
+            this.load.image('moeda', 'assets/moeda.png');
+            this.load.spritesheet('inimigo', 'assets//SimpleEnemies Bat_Idle Spritesheet.png', { frameWidth: 32, frameHeight: 32 });
+        }
+
+        function create() {
+            this.add.image(larguraJogo / 2, alturaJogo / 2, 'background');
+            alien = this.physics.add.sprite(larguraJogo / 2, alturaJogo / 2, 'player');
+            alien.setCollideWorldBounds(true);
+
+            this.anims.create({
+            key: 'voarInimigo',
+            frames: this.anims.generateFrameNumbers('inimigo', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+            });
+
+            inimigoTopo = this.physics.add.sprite(0, 230, 'inimigo').setVelocityX(400);
+            inimigoBaixo = this.physics.add.sprite(0, alturaJogo - 230, 'inimigo').setVelocityX(400);
+            inimigoTopo.anims.play('voarInimigo', true);
+            inimigoBaixo.anims.play('voarInimigo', true);
+
+            inimigoTopo.setCollideWorldBounds(true).setBounce(1);
+            inimigoBaixo.setCollideWorldBounds(true).setBounce(1);
+
+            // Chama posicionarMoeda com o contexto correto
+            posicionarMoeda.call(this);
+
+
+
+            placar = this.add.text(16, 16, 'Pontuação: 0', { fontSize: '32px', fill: '#FFF' });
+
+            this.physics.add.overlap(alien, moeda, coletarMoeda, null, this);
+            this.physics.add.collider(alien, inimigoTopo, fimDeJogo, null, this);
+            this.physics.add.collider(alien, inimigoBaixo, fimDeJogo, null, this);
+
+            cursors = this.input.keyboard.createCursorKeys();
+        }
+
+        function update() {
+            if (cursors.left.isDown) {
+            alien.setVelocityX(-200);
+            
+            } else if (cursors.right.isDown) {
+            alien.setVelocityX(200);
+            } else {
+            alien.setVelocityX(0);
+            }
+
+            if (cursors.up.isDown) {
+             alien.setVelocityY(-200);
+            } 
+            
+            else if (cursors.down.isDown) {
+            alien.setVelocityY(200);
+            
+            } else {
+            alien.setVelocityY(0);
+            }
+        }
+
+        function posicionarMoeda() {
+            // Alterna a posição da moeda
+            if (estadoMoeda === 'topo') {
+                moeda = this.physics.add.sprite(larguraJogo / 2, 50, 'moeda');
+                estadoMoeda = 'baixo';
+            } else {
+                moeda = this.physics.add.sprite(larguraJogo / 2, alturaJogo - 50, 'moeda');
+                estadoMoeda = 'topo';
+            }
+        }
+
+        function coletarMoeda(alien, moeda) {
+
+            moeda.disableBody(true, true); // Desabilita a moeda temporariamente
+            pontuacao += 100; // Aumenta a pontuação
+            placar.setText('SCORE: ' + pontuacao); // Atualiza o placar
+
+            // Gera uma nova posição para a moeda
+            var novaPosicaoX = Phaser.Math.Between(50, larguraJogo - 50);
+            var novaPosicaoY = estadoMoeda === 'topo' ? 50 : alturaJogo - 50;
+            estadoMoeda = estadoMoeda === 'topo' ? 'baixo' : 'topo'; // Alterna a posição da moeda
+
+            // Recria a moeda na nova posição
+            moeda.enableBody(true, novaPosicaoX, novaPosicaoY, true, true);
+        }
+
+
+        function fimDeJogo(alien, inimigo) {
+            this.physics.pause();
+            alien.setTint(0xff0000);
+            this.add.text(larguraJogo / 2, alturaJogo / 2, 'Game Over', { fontSize: '40px', fill: '#FFF' }).setOrigin(0.5);
+        }
+    </script>
+</body>
+</html>
