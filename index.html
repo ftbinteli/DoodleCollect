@@ -14,10 +14,10 @@
         var alien 
         var inimigoTopo 
         var inimigoBaixo 
-        var moeda 
+        var bolo 
         var pontuacao = 0
         var placar
-        var estadoMoeda = 'topo'; // Estado inicial da moeda
+        var estadoBolo = 'topo'; // Estado inicial do bolo
         var cursors 
         const config = {
             type: Phaser.AUTO,
@@ -26,7 +26,7 @@
             physics: {
                 default: 'arcade',
                 arcade: {
-                    gravity: { y: 0 }, // Sem gravidade para controlar manualmente a moeda
+                    gravity: { y: 0 }, // Sem gravidade para controlar manualmente o bolo
                     debug: false
                 }
             },
@@ -38,8 +38,8 @@
         function preload() {
             this.load.image('background', 'assets/bg.png');
             this.load.image('player', 'assets/Doodler.png');
-            this.load.image('inimigo', 'assets/inimigo.png');
-            this.load.image('moeda', 'assets/moeda.png');
+            // this.load.image('inimigo', 'assets/inimigo.png');
+            this.load.image('bolo', 'assets/Cake.png');
             this.load.spritesheet('inimigo', 'assets//SimpleEnemies Bat_Idle Spritesheet.png', { frameWidth: 32, frameHeight: 32 });
         }
 
@@ -47,6 +47,7 @@
             this.add.image(larguraJogo / 2, alturaJogo / 2, 'background');
             alien = this.physics.add.sprite(larguraJogo / 2, alturaJogo / 2, 'player');
             alien.setCollideWorldBounds(true);
+            alien.setScale(0.15)
 
             this.anims.create({
             key: 'voarInimigo',
@@ -55,22 +56,30 @@
             repeat: -1
             });
 
-            inimigoTopo = this.physics.add.sprite(0, 230, 'inimigo').setVelocityX(400);
-            inimigoBaixo = this.physics.add.sprite(0, alturaJogo - 230, 'inimigo').setVelocityX(400);
+            inimigoTopo = this.physics.add.sprite(0, 230, 'inimigo').setVelocityX(800);
+            inimigoBaixo = this.physics.add.sprite(0, alturaJogo - 230, 'inimigo').setVelocityX(800);
             inimigoTopo.anims.play('voarInimigo', true);
             inimigoBaixo.anims.play('voarInimigo', true);
+            
+            // Aumenta a escala do inimigo para o dobro do tamanho original
+            inimigoTopo.setScale(2);
+            inimigoBaixo.setScale(2);
+
+
+            // Inverte o sprite do inimigo de baixo para começar olhando para a esquerda
+            inimigoBaixo.setFlipX(true);
 
             inimigoTopo.setCollideWorldBounds(true).setBounce(1);
             inimigoBaixo.setCollideWorldBounds(true).setBounce(1);
 
-            // Chama posicionarMoeda com o contexto correto
-            posicionarMoeda.call(this);
+            // Chama posicionarBolo com o contexto correto
+            posicionarBolo.call(this);
 
 
 
-            placar = this.add.text(16, 16, 'Pontuação: 0', { fontSize: '32px', fill: '#FFF' });
+            placar = this.add.text(larguraJogo / 3, alturaJogo - 80, 'SCORE: 0', { fontSize: '65px', fill: '#0xFFFFF' });
 
-            this.physics.add.overlap(alien, moeda, coletarMoeda, null, this);
+            this.physics.add.overlap(alien, bolo, coletarBolo, null, this);
             this.physics.add.collider(alien, inimigoTopo, fimDeJogo, null, this);
             this.physics.add.collider(alien, inimigoBaixo, fimDeJogo, null, this);
 
@@ -79,57 +88,72 @@
 
         function update() {
             if (cursors.left.isDown) {
-            alien.setVelocityX(-200);
+            alien.setVelocityX(-400);
             
             } else if (cursors.right.isDown) {
-            alien.setVelocityX(200);
+            alien.setVelocityX(400);
             } else {
             alien.setVelocityX(0);
             }
 
             if (cursors.up.isDown) {
-             alien.setVelocityY(-200);
+             alien.setVelocityY(-400);
             } 
             
             else if (cursors.down.isDown) {
-            alien.setVelocityY(200);
+            alien.setVelocityY(400);
             
             } else {
             alien.setVelocityY(0);
             }
         }
 
-        function posicionarMoeda() {
-            // Alterna a posição da moeda
-            if (estadoMoeda === 'topo') {
-                moeda = this.physics.add.sprite(larguraJogo / 2, 50, 'moeda');
-                estadoMoeda = 'baixo';
+        function posicionarBolo() {
+            // Alterna a posição do bolo
+            if (estadoBolo === 'topo') {
+                bolo = this.physics.add.sprite(larguraJogo / 2, 50, 'bolo');
+                estadoBolo = 'baixo';
             } else {
-                moeda = this.physics.add.sprite(larguraJogo / 2, alturaJogo - 50, 'moeda');
-                estadoMoeda = 'topo';
+                bolo = this.physics.add.sprite(larguraJogo / 2, alturaJogo - 50, 'bolo');
+                estadoBolo = 'topo';
             }
+            
         }
 
-        function coletarMoeda(alien, moeda) {
+        function coletarBolo(alien, bolo) {
 
-            moeda.disableBody(true, true); // Desabilita a moeda temporariamente
+            bolo.disableBody(true, true); // Desabilita o bolo temporariamente
             pontuacao += 100; // Aumenta a pontuação
             placar.setText('SCORE: ' + pontuacao); // Atualiza o placar
 
-            // Gera uma nova posição para a moeda
+            // Gera uma nova posição para o bolo
             var novaPosicaoX = Phaser.Math.Between(50, larguraJogo - 50);
-            var novaPosicaoY = estadoMoeda === 'topo' ? 50 : alturaJogo - 50;
-            estadoMoeda = estadoMoeda === 'topo' ? 'baixo' : 'topo'; // Alterna a posição da moeda
+            var novaPosicaoY = estadoBolo == 'topo' ? 50 : alturaJogo - 50;
+            estadoBolo = estadoBolo == 'topo' ? 'baixo' : 'topo'; // Alterna a posição do bolo entre topo e baixo
 
-            // Recria a moeda na nova posição
-            moeda.enableBody(true, novaPosicaoX, novaPosicaoY, true, true);
+            // Recria o bolo na nova posição
+            bolo.enableBody(true, novaPosicaoX, novaPosicaoY, true, true);
+
         }
 
+        // Verifica se o inimigo do topo atingiu os limites do mundo e inverte o sprite
+        if(inimigoTopo.body.velocity.x > 0 && inimigoTopo.x >= larguraJogo - inimigoTopo.width) {
+            inimigoTopo.setFlipX(true);
+        } else if(inimigoTopo.body.velocity.x < 0 && inimigoTopo.x <= 0) {
+            inimigoTopo.setFlipX(false);
+        }
+
+        // Faz o mesmo com o inimigo de baixo
+        if(inimigoBaixo.body.velocity.x > 0 && inimigoBaixo.x >= larguraJogo - inimigoBaixo.width) {
+            inimigoBaixo.setFlipX(true);
+        } else if(inimigoBaixo.body.velocity.x < 0 && inimigoBaixo.x <= 0) {
+            inimigoBaixo.setFlipX(false);
+        }
 
         function fimDeJogo(alien, inimigo) {
             this.physics.pause();
             alien.setTint(0xff0000);
-            this.add.text(larguraJogo / 2, alturaJogo / 2, 'Game Over', { fontSize: '40px', fill: '#FFF' }).setOrigin(0.5);
+            this.add.text(larguraJogo / 2, alturaJogo / 2, 'Game Over', { fontSize: '40px', fill: '#0xFFFFF' }).setOrigin(0.5);
         }
     </script>
 </body>
